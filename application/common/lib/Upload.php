@@ -51,7 +51,7 @@ class Upload
         $token = $auth->uploadToken($config['bucket']);
 
         //上传到骑牛后保存的文件名
-        $key  = date('Y')."/".date('m')."/".substr(md5($file), 0, 5).date('YmdHis').rand(0, 9999).'.'.$ext;
+        $key  = date('Y')."/".date('m')."/".substr(md5($file), 0, 5).date('YmdHis').rand(0, 9999).'.'.$extension;
 
         //构建 UploadManager 对象
         $uploadMgr = new UploadManager();

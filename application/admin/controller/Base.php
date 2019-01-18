@@ -18,6 +18,15 @@ use think\Controller;
 
 class Base extends Controller
 {
+    //页数
+    public $page = '';
+    //每页显示多少条
+    public $size = '';
+    //查询条件的起始值
+    public $form = 0;
+    //定义model
+    public $model = '';
+
     //控制器初始化
     public function _initialize()
     {
@@ -43,7 +52,56 @@ class Base extends Controller
         return false;
     }
 
+    /**
+     * 获取分页page size 内容
+     */
+    public function getPageAndSize($data) {
+        $this->page = !empty($data['page']) ? $data['page'] : 1;
+        $this->size = !empty($data['size']) ? $data['size'] : config('paginate.list_rows');
+        $this->from = ($this->page - 1) * $this->size;
+    }
 
+    //删除逻辑
+    public function delete($id)
+    {
+        if (!intval($id)){
+            return $this->result('', 0, '传参有误');
+        }
+
+        //判断表与控制器是否相同是否相同
+        $model = $this->model ? $this->model : request()->controller();
+
+        try{
+            $res = model($model)->save(['status' => -1,'id'=>$id]);
+        }catch (\Exception $e){
+            return $this->result('', 0, $e->getMessage());
+        }
+
+        if ($res){
+            return $this->result(['jump_url' => $_SERVER['HTTP_REFERER']], 1, 'OK');
+        }else{
+            return $this->result('', 0, '删除失败');
+        }
+    }
+
+    //通用化修改状态
+    public function status()
+    {
+        $data = input('param.');
+
+        $model = $this->model ? $this->model : request()->controller();
+        try{
+            $res = model($model)->save(['status'=>$data['status'],'id'=>$data['id']]);
+        }catch (\Exception $e){
+            return $this->result('', 0, $e->getMessage());
+        }
+        if ($res){
+            return $this->result(['jump_url' => $_SERVER['HTTP_REFERER']], 1, 'OK');
+        }else{
+            return $this->result('', 0, '修改失败');
+        }
+
+    }
 
 
 }
